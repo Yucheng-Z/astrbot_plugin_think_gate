@@ -1,20 +1,19 @@
 name: astrbot_plugin_think_gate
 display_name: 思考 or 不思考
-short_desc: 闲聊省思考、难题才开深度思考，按浓度自动控制
+short_desc: 按对话内容智能决定本轮要不要开深度思考
 desc: |
-  在每次主模型回复前，用便宜的判断模型给「要不要深度思考」打 0–100 分，再按「思考浓度」阈值，临时打开或关闭同一主模型的深度思考。
+  在每次主模型回复前，用判断模型评估「这一轮是否值得深度思考」，再按「思考浓度」阈值，临时打开或关闭同一主模型的深度思考。
 
-  不额外注册第二套聊天提供商，只改当前主模型的 custom_extra_body（默认 DeepSeek 的 thinking enabled/disabled）。默认关闭插件；打开后同一轮对话只判断一次，工具调用后续复用结果。
+  目标是让机器人更聪明地选择思考深度：该细想时细想，日常接话时不必强行进入深度模式。不另注册第二套聊天提供商，只改当前主模型的 custom_extra_body（默认适配 DeepSeek 的 thinking 开关）。插件默认关闭；开启后同一轮对话只判断一次，工具调用后续复用结果。
 help: |
   1. 安装后打开 enable。
-  2. 为判断模型选一个快且便宜的提供商（也可留空用当前聊天模型）。
-  3. 用 think_density 调节松紧：越高越爱开思考；默认 50。
+  2. 为判断模型选择提供商（也可留空，使用当前聊天模型）。
+  3. 用 think_density 调节「多容易进入深度思考」：越高越倾向开思考；默认 50。
   4. 若主模型不是 DeepSeek 类 thinking 字段，请改 thinking_enabled_body / thinking_disabled_body。
-version: 0.1.1
+version: 0.1.2
 author: Yucheng-Z
 repo: https://github.com/Yucheng-Z/astrbot_plugin_think_gate
 tags:
   - llm
   - thinking
   - routing
-  - cost
