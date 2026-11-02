@@ -1,0 +1,44 @@
+{
+  "enable": {
+    "type": "bool",
+    "description": "启用思考门控",
+    "hint": "默认关闭。打开后才会在每次回复前用判断模型决定是否开深度思考。",
+    "default": false
+  },
+  "think_density": {
+    "type": "int",
+    "description": "思考浓度（0–100）",
+    "hint": "越高越容易开深度思考。判断模型先打 0–100 分，分数 ≥ (100−浓度) 才开启。50=中性；70 偏爱思考；30 偏省钱。短句仍强制跳过。",
+    "default": 50
+  },
+  "judge_provider_id": {
+    "type": "string",
+    "description": "判断模型提供商",
+    "hint": "从 AstrBot 已配置的聊天提供商中选择。留空则用当前会话默认聊天模型。",
+    "default": "deepseek/deepseek-flash",
+    "_special": "select_provider"
+  },
+  "judge_timeout": {
+    "type": "float",
+    "description": "判断超时秒数（超时默认不思考）",
+    "default": 5
+  },
+  "judge_prompt": {
+    "type": "text",
+    "description": "判断提示词",
+    "editor_mode": true,
+    "hint": "模型只输出 0–100 的整数分：需要深度思考的程度。插件再用「思考浓度」阈值决定开/关。",
+    "default": "你是路由助手。根据用户最新消息，给「是否需要深度思考」打分 0–100（整数）。高分：复杂推理、多步对比、知识库检索后组织有观点的回答、数学/代码/长设定、有深度的提问。若用户明确要求深度思考、深度回答、深入探讨等鲜明深度要求 → 至少 70。低分：闲聊、打招呼、表情、简单确认。只输出一行整数，不要解释。"
+  },
+  "thinking_enabled_body": {
+    "type": "text",
+    "description": "开启思考时写入 custom_extra_body 的 JSON",
+    "hint": "DeepSeek 示例：{\"thinking\":{\"type\":\"enabled\"}}",
+    "default": "{\"thinking\":{\"type\":\"enabled\"}}"
+  },
+  "thinking_disabled_body": {
+    "type": "text",
+    "description": "关闭思考时写入 custom_extra_body 的 JSON",
+    "default": "{\"thinking\":{\"type\":\"disabled\"}}"
+  }
+}
