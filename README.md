@@ -1,32 +1,67 @@
 # 思考 or 不思考（astrbot_plugin_think_gate）
 
-每次主模型回复前，用可配置的**判断模型**打 **0–100 分**，再按 `think_density`（思考浓度）阈值决定是否临时打开**同一主模型**的深度思考（写入 `custom_extra_body`，**不分叉**第二套聊天提供商）。
+让机器人**该省就省、该想才想**：每次主模型真正回复前，先用一个便宜的**判断模型**打分，再决定要不要临时打开**同一主模型**的深度思考。
 
-## 安装
-
-- **插件市场**（推荐）：搜索「思考 or 不思考」或 `astrbot_plugin_think_gate` 安装。
-- **手动**：将本仓库放入 AstrBot 的 `data/plugins/astrbot_plugin_think_gate/`，在面板重载插件。
+- 不另开「思考专用」聊天提供商，只改当前主模型的 `custom_extra_body`
+- 默认 **关闭**；关掉时零额外调用
+- 适合 DeepSeek 等用 `thinking.enabled / disabled` 的接口（可改 JSON 适配其它模型）
 
 仓库：https://github.com/Yucheng-Z/astrbot_plugin_think_gate
 
-## 配置
+## 它解决什么问题
 
-| 键 | 说明 |
-|----|------|
-| `enable` | 总开关（**默认关**；关闭时无额外判断调用） |
-| `think_density` | 0–100，越高越容易开思考；阈值 = `100 - density` |
-| `judge_provider_id` | 判断模型（面板下拉；留空用当前聊天模型） |
-| `judge_timeout` | 超时秒数，超时默认不思考 |
-| `judge_prompt` | 系统提示：要求只输出一行 0–100 整数 |
-| `thinking_enabled_body` / `thinking_disabled_body` | 写入 `custom_extra_body` 的 JSON（按你的主模型格式改） |
+深度思考贵、慢。闲聊也全程开思考浪费；难题又希望自动开。本插件在中间加一层路由：
 
-## 行为要点
+1. 判断模型根据用户最新消息输出 **0–100** 分（需要深度思考的程度）
+2. 与「思考浓度」比较：`分数 ≥ (100 − 浓度)` → 本轮开思考，否则关
+3. Agent 整轮结束时恢复基线，避免一直卡在「开着思考」
 
-- `on_llm_request`：判断 → 改主模型 thinking；同一 event 只判一次，工具二跳复用
-- `on_agent_done`：恢复基线（默认 disabled）
-- 解析：优先整数分；裸 `yes` / `no` 兜底为 100 / 0
-- 过短消息会跳过判断（省调用）
+## 安装
+
+- **插件市场**：搜索「思考 or 不思考」或 `astrbot_plugin_think_gate`
+- **手动**：克隆/下载本仓库到 AstrBot 的 `data/plugins/astrbot_plugin_think_gate/`，面板里重载插件
+
+## 快速开始
+
+1. 插件配置里打开 **`enable`**
+2. **`judge_provider_id`**：选一个快、便宜的模型（推荐 flash / 轻量）；留空则用当前会话聊天模型
+3. **`think_density`** 先用默认 `50`，再按体感加减
+4. 主模型若不是 DeepSeek 风格 thinking，改下面两个 JSON 字段以匹配你的 API
+
+## 配置说明
+
+| 配置项 | 默认 | 说明 |
+|--------|------|------|
+| `enable` | `false` | 总开关。关 = 不判断、不改 thinking |
+| `think_density` | `50` | 思考浓度 0–100，**越高越容易开思考**。开启阈值 = `100 − 浓度` |
+| `judge_provider_id` | （面板可选） | 判断用提供商；找不到或留空 → 回退当前聊天模型 |
+| `judge_timeout` | `5` | 判断超时秒数；超时 / 失败 → **默认不思考** |
+| `judge_prompt` | 见面板 | 系统提示，应要求模型**只输出一行 0–100 整数** |
+| `thinking_enabled_body` | `{"thinking":{"type":"enabled"}}` | 判定「要思考」时写入主模型 `custom_extra_body` |
+| `thinking_disabled_body` | `{"thinking":{"type":"disabled"}}` | 恢复/关闭时使用的 JSON（并作基线参考） |
+
+### 浓度怎么理解（举例）
+
+| 浓度 | 阈值（分数 ≥ 才开） | 大致体感 |
+|------|---------------------|----------|
+| `30` | `70` | 偏省钱，只有较难才开 |
+| `50` | `50` | 中性（默认） |
+| `70` | `30` | 偏爱思考，稍难就开 |
+
+## 行为细节
+
+- **同一 Agent 轮只判断一次**；工具调用触发的后续 LLM 请求会复用第一次结论
+- **去标点后有效字符不足 8 个**的短句直接跳过判断 → 不思考
+- 判断结果解析：优先抓整数分；若模型只回 `yes`/`no`（或「是」「否」等）会兜底映射为 100 / 0
+- 多会话并发时用引用计数，避免 A 关思考时误关仍在思考的 B
+- 仅在 `on_agent_done` 恢复；不会在半截回复后提前关掉本轮思考
+
+## 注意
+
+- 依赖主模型提供商配置里可写的 **`custom_extra_body`**；若你的提供商忽略该字段，本插件无法生效
+- 判断模型也会产生少量费用与延迟；请尽量选轻量模型，并合理设 `judge_timeout`
+- 本插件不替代「提供商面板里写死的 thinking」；它是按条消息临时覆盖
 
 ## 许可
 
-MIT
+MIT © Yucheng-Z
