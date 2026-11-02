@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "display_name": "Think or Not",
+    "short_desc": "Intelligently decide whether to enable deep thinking each turn",
+    "desc": "Before each main-model reply, a judge model scores whether this turn warrants deep thinking, then this plugin temporarily enables or disables thinking on the same chat provider using a think-density threshold. The goal is smarter depth selection: reason carefully when the conversation needs it, and stay light for casual turns. It does not register a second chat provider; it only edits custom_extra_body (DeepSeek-style thinking by default). Disabled by default; when enabled, judges once per Agent turn and reuses the decision for tool follow-ups."
+  },
+  "config": {
+    "enable": {
+      "description": "Enable think gate",
+      "hint": "Off by default. When on, a judge model decides whether to enable deep thinking before each reply."
+    },
+    "think_density": {
+      "description": "Think density (0–100)",
+      "hint": "Higher values enable deep thinking more easily. The judge scores 0–100; thinking turns on when score ≥ (100 − density). 50 = neutral; 70 = more eager; 30 = more restrained. Very short messages still skip judging."
+    },
+    "judge_provider_id": {
+      "description": "Judge model provider",
+      "hint": "Pick from providers already configured in AstrBot. Leave empty to use the current session chat model."
+    },
+    "judge_timeout": {
+      "description": "Judge timeout seconds (timeout → no thinking)"
+    },
+    "judge_prompt": {
+      "description": "Judge system prompt",
+      "hint": "Ask the model to output only a 0–100 integer for how much deep thinking is needed. The density threshold then decides on/off."
+    },
+    "thinking_enabled_body": {
+      "description": "JSON written to custom_extra_body when thinking is on",
+      "hint": "DeepSeek example: {\"thinking\":{\"type\":\"enabled\"}}"
+    },
+    "thinking_disabled_body": {
+      "description": "JSON written to custom_extra_body when thinking is off"
+    }
+  }
+}

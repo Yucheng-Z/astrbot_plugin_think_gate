@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "display_name": "思考 or 不思考",
+    "short_desc": "按对话内容智能决定本轮要不要开深度思考",
+    "desc": "在每次主模型回复前，用判断模型评估「这一轮是否值得深度思考」，再按「思考浓度」阈值，临时打开或关闭同一主模型的深度思考。目标是让机器人更聪明地选择思考深度：该细想时细想，日常接话时不必强行进入深度模式。不另注册第二套聊天提供商，只改当前主模型的 custom_extra_body（默认适配 DeepSeek 的 thinking 开关）。插件默认关闭；开启后同一轮对话只判断一次，工具调用后续复用结果。"
+  },
+  "config": {
+    "enable": {
+      "description": "启用思考门控",
+      "hint": "默认关闭。打开后才会在每次回复前用判断模型决定是否开深度思考。"
+    },
+    "think_density": {
+      "description": "思考浓度（0–100）",
+      "hint": "越高越容易进入深度思考。判断模型先打 0–100 分，分数 ≥ (100−浓度) 才开启。50=中性；70 更积极开思考；30 更克制。短句仍强制跳过。"
+    },
+    "judge_provider_id": {
+      "description": "判断模型提供商",
+      "hint": "从 AstrBot 已配置的聊天提供商中选择。留空则用当前会话默认聊天模型。"
+    },
+    "judge_timeout": {
+      "description": "判断超时秒数（超时默认不思考）"
+    },
+    "judge_prompt": {
+      "description": "判断提示词",
+      "hint": "模型只输出 0–100 的整数分：需要深度思考的程度。插件再用「思考浓度」阈值决定开/关。"
+    },
+    "thinking_enabled_body": {
+      "description": "开启思考时写入 custom_extra_body 的 JSON",
+      "hint": "DeepSeek 示例：{\"thinking\":{\"type\":\"enabled\"}}"
+    },
+    "thinking_disabled_body": {
+      "description": "关闭思考时写入 custom_extra_body 的 JSON"
+    }
+  }
+}

@@ -10,7 +10,7 @@ help: |
   2. 为判断模型选择提供商（也可留空，使用当前聊天模型）。
   3. 用 think_density 调节「多容易进入深度思考」：越高越倾向开思考；默认 50。
   4. 若主模型不是 DeepSeek 类 thinking 字段，请改 thinking_enabled_body / thinking_disabled_body。
-version: 0.1.2
+version: 0.1.3
 author: Yucheng-Z
 repo: https://github.com/Yucheng-Z/astrbot_plugin_think_gate
 tags:
